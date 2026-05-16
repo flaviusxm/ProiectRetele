@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  nod1:
+    build: .
+    container_name: nod1
+    volumes:
+      - .:/app
+    command: "172.20.0.2 5000 172.20.0.3:5001,172.20.0.4:5002"
+    networks:
+      p2p_net:
+        ipv4_address: 172.20.0.2
+    stdin_open: true
+    tty: true
+
+  nod2:
+    build: .
+    container_name: nod2
+    volumes:
+      - .:/app
+    command: "172.20.0.3 5001 172.20.0.2:5000,172.20.0.4:5002"
+    networks:
+      p2p_net:
+        ipv4_address: 172.20.0.3
+    depends_on:
+      - nod1
+    stdin_open: true
+    tty: true
+
+  nod3:
+    build: .
+    container_name: nod3
+    volumes:
+      - .:/app
+    command: "172.20.0.4 5002 172.20.0.3:5001,172.20.0.2:5000"
+    networks:
+      p2p_net:
+        ipv4_address: 172.20.0.4
+    depends_on:
+      - nod2
+    stdin_open: true
+    tty: true
+
+networks:
+  p2p_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
