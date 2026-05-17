@@ -40,14 +40,11 @@ class NodeServer:
     def handle_client(self, client_sock):
         while self.is_running:
             try:
-                # Citim lungimea payload-ului (4 bytes binar)
                 header = client_sock.recv(4)
                 if not header or len(header) < 4:
                     break
                 
                 payload_len = struct.unpack("!I", header)[0]
-                
-                # Citim fragmentul complet de date
                 data = bytearray()
                 while len(data) < payload_len:
                     packet = client_sock.recv(payload_len - len(data))

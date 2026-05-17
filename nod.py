@@ -15,13 +15,10 @@ class Node:
         self.connected_clients = [] 
         self.subscriptions = {}      
         
-        # Limita maximă a payload-ului binar pentru a preveni flood-ul (Cerința 3)
-        self.MAX_PAYLOAD_SIZE = 1024 * 1024 # 1 MB max per job
-        
-        # Mapare chei -> Comenzi reale din sistemul de operare (Cerința 2.6 & 6)
+        self.MAX_PAYLOAD_SIZE = 1024 * 1024 
         self.commands = {
             "uppercase": [sys.executable, "-c", "import sys; print(sys.stdin.read().upper().strip())"],
-            "count_words": [sys.executable, "-c", "import sys; print(f'Numar cuvinte: {len(sys.stdin.read().split())}')]"]
+            "count_words": [sys.executable, "-c", "import sys; print(f'Numar cuvinte: {len(sys.stdin.read().split())}')"]
         }
         
         self.server_module = NodeServer(self.my_ip, self.my_port, self)
@@ -68,7 +65,6 @@ class Node:
         print(f" Directly connected clients: {len(self.connected_clients)}")
         for c in self.connected_clients:
             print(f"   - {c['address']} (Callback Port: {c['callback_port']})")
-        # Afișăm subscrierile curat convertind set-urile în liste
         clean_subs = {k: list(v) for k, v in self.subscriptions.items()}
         print(f" Active subscriptions: {clean_subs}")
 
@@ -94,7 +90,7 @@ class Node:
 
         elif m_type == "SUBSCRIBE":
             key = payload.get("key")
-            subscriber = tuple(payload.get("subscriber")) 
+            subscriber = tuple(payload.get("subscriber"))
             if key not in self.subscriptions:
                 self.subscriptions[key] = set()
             
@@ -115,8 +111,6 @@ class Node:
             key = payload.get("key")
             data = payload.get("data")
             print(f"\n [MSG] Received binary job on key '{key}' (Length: {len(data)} bytes)")
-            
-            # Verificăm dacă noi înșine suntem consumatori pentru această cheie
             if key in self.subscriptions and (self.my_ip, self.my_port) in self.subscriptions[key]:
                 self.execute_command(key, data)
                 
@@ -162,7 +156,6 @@ class Node:
         print(f" >>> [EXEC] Routing payload to terminal process for key '{key}'...")
         if key in self.commands:
             try:
-                # Pornim procesul configurat și îi trimitem datele pe STDIN
                 proc = subprocess.Popen(
                     self.commands[key],
                     stdin=subprocess.PIPE,
