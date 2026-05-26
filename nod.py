@@ -149,7 +149,7 @@ class Node:
         if key in self.subscriptions and (self.my_ip, self.my_port) in self.subscriptions[key]:
             self.execute_command(key, data)
         
-        self.broadcast_message(msg)
+        self.distribute_message(key, data, msg, None)
 
     def execute_command(self, key, data):
         """Execută o comandă reală în proces independent (Cerința 2.6)"""
