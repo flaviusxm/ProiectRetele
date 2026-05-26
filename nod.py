@@ -114,7 +114,6 @@ class Node:
             if key in self.subscriptions and (self.my_ip, self.my_port) in self.subscriptions[key]:
                 self.execute_command(key, data)
                 
-            self.distribute_message(key, data, message, sender_sock)
 
     def subscribe_locally(self, key):
         subscriber = (self.my_ip, self.my_port)
